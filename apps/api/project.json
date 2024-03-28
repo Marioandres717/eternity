@@ -16,6 +16,13 @@
         "command": "go run ./src/main.go",
         "cwd": "apps/api"
       }
+    },
+    "tidy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go mod tidy",
+        "cwd": "apps/api"
+      }
     }
   }
 }
