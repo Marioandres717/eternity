@@ -1,3 +1,7 @@
 go 1.22
 
-use ./apps/api
+use (
+	./apps/api
+	./packages/types
+	./packages/xml2json
+)
