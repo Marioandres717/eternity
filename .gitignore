@@ -4,3 +4,4 @@ build
 
 .nx/cache
 .DS_Store
+data

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func CreateJsonFileFromXML(xmlFile string, jsonFile string) error {
@@ -14,7 +15,7 @@ func CreateJsonFileFromXML(xmlFile string, jsonFile string) error {
 	if err != nil {
 		return err
 	}
-	err = writeFile(jsonData, jsonFile)
+	err = writeJsonFile(jsonData, jsonFile)
 	if err != nil {
 		return err
 	}
@@ -22,15 +23,14 @@ func CreateJsonFileFromXML(xmlFile string, jsonFile string) error {
 }
 
 func xml2json(file string) ([]byte, error) {
-	xmlData, err := readFile(file)
+	xmlData, err := readXmlFile(file)
 	if err != nil {
 		fmt.Println("Error reading xml file", file)
 		return nil, err
 	}
-	var value types.HealthData
-	err = xml.Unmarshal(xmlData, &value)
+	value, err := parseXML(xmlData)
 	if err != nil {
-		fmt.Println("Error decoding xml file", file)
+		fmt.Println("Error parsing xml data", file)
 		return nil, err
 	}
 	jsonData, err := json.Marshal(value)
@@ -39,6 +39,24 @@ func xml2json(file string) ([]byte, error) {
 		return nil, err
 	}
 	return jsonData, nil
+}
+
+func parseXML(data []byte) (*types.HealthData, error) {
+	var value types.HealthData
+	err := xml.Unmarshal(data, &value)
+	if err != nil {
+		fmt.Println("Error decoding xml data")
+		return nil, err
+	}
+	return &value, nil
+}
+
+func readXmlFile(file string) ([]byte, error) {
+	if strings.HasSuffix(file, ".xml") {
+		return readFile(file)
+	} else {
+		return readFile(file + ".xml")
+	}
 }
 
 func readFile(filepath string) ([]byte, error) {
@@ -57,16 +75,24 @@ func readFile(filepath string) ([]byte, error) {
 	return data, nil
 }
 
+func writeJsonFile(data []byte, file string) error {
+	if strings.HasSuffix(file, ".json") {
+		return writeFile(data, file)
+	} else {
+		return writeFile(data, file+".json")
+	}
+}
+
 func writeFile(data []byte, file string) error {
 	outputFile, err := os.Create(file)
 	if err != nil {
-		fmt.Println("Error creating json file", file)
+		fmt.Println("Error creating file", file)
 		return err
 	}
 	defer outputFile.Close()
 	_, err = outputFile.Write(data)
 	if err != nil {
-		fmt.Println("Error writing json data", file)
+		fmt.Println("Error writing data", file)
 		return err
 	}
 	return nil
